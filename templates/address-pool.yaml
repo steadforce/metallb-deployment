@@ -1,0 +1,11 @@
+{{- if .Capabilities.APIVersions.Has "metallb.io/v1beta1" -}}
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: {{ .Values.addressPool.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  addresses:
+  - {{ .Values.addressPool.addresses }}
+{{- end -}}

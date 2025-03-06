@@ -1,0 +1,11 @@
+metallb:
+  controller:
+    resources: ~
+  speaker:
+    resources: ~
+    frr:
+      resources: ~
+    reloader:
+      resources: ~
+    frrMetrics:
+      resources: ~
