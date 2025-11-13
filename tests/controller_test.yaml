@@ -55,7 +55,7 @@ tests:
       pattern: *nonZeroMemoryPattern
   - matchRegex:
       path: *requestsCpuPath
-      # on non local cluster we expect  >= 1m cpu cpu requests
+      # on non local cluster we expect  >= 1m cpu requests
       pattern: *cpuPattern
   - matchRegex:
       path: *requestsMemoryPath
