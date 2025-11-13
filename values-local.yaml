@@ -1,11 +1,41 @@
 metallb:
   controller:
-    resources: ~
+    resources:
+      limits:
+        cpu: 0m
+        memory: 96Mi
+      requests:
+        cpu: 0m
+        memory: 0Mi
   speaker:
-    resources: ~
+    resources:
+      limits:
+        cpu: 0m
+        memory: 80Mi
+      requests:
+        cpu: 0m
+        memory: 0Mi
     frr:
-      resources: ~
+      resources:
+        limits:
+          cpu: 0m
+          memory: 32Mi
+        requests:
+          cpu: 0m
+          memory: 0Mi
     reloader:
-      resources: ~
+      resources:
+        limits: 
+          cpu: 0m
+          memory: 8Mi
+        requests:
+          cpu: 0m
+          memory: 0Mi
     frrMetrics:
-      resources: ~
+      resources:
+        limits:
+          cpu: 0m
+          memory: 16Mi
+        requests:
+          cpu: 0m
+          memory: 0Mi
