@@ -8,19 +8,16 @@ tests:
   asserts:
   - matchSnapshot: {}
   values: &localValues
-  - ../values.yaml
   - ../values-local.yaml
 - it: snapshot test for detecting side effects on all dev metallb speaker container during local development
   asserts:
   - matchSnapshot: {}
   values: &devValues
-  - ../values.yaml
   - ../values-development.yaml
 - it: snapshot test for detecting side effects on all prod metallb speaker container during local development
   asserts:
   - matchSnapshot: {}
   values: &prodValues
-  - ../values.yaml
   - ../values-production.yaml
 - it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
   values: *localValues
