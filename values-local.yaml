@@ -25,7 +25,7 @@ metallb:
           memory: 0Mi
     reloader:
       resources:
-        limits: 
+        limits:
           cpu: 0m
           memory: 8Mi
         requests:

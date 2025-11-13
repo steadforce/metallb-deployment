@@ -46,7 +46,7 @@ tests:
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
-- it: metallb speaker, frr, reloader, frr-metrics and container resources for dev-cloud01 cluster
+- it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
   values: *devValues
   documentIndex: 1
   asserts: &externalSecretsResourcesAsserts
