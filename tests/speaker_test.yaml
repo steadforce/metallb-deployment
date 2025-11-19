@@ -1,4 +1,4 @@
-suite: test if the resource settings for metallb speaker container in cluster is correct
+suite: test if the resource settings for metallb speaker container in cluster are correct
 release:
   name: metallb
 templates:
@@ -21,7 +21,9 @@ tests:
   - ../values-production.yaml
 - it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
   values: *localValues
-  documentIndex: 1
+  documentSelector:
+    path: kind
+    value: DaemonSet
   asserts:
   - matchRegex:
       path: kind
@@ -45,7 +47,9 @@ tests:
 
 - it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
   values: *devValues
-  documentIndex: 1
+  documentSelector:
+    path: kind
+    value: DaemonSet
   asserts: &externalSecretsResourcesAsserts
   - matchRegex:
       path: *cpuLimitsPath
@@ -66,5 +70,7 @@ tests:
 
 - it: metallb speaker, frr, reloader, frr-metrics container resources for prod-cloud01 cluster
   values: *prodValues
-  documentIndex: 1
+  documentSelector:
+    path: kind
+    value: DaemonSet
   asserts: *externalSecretsResourcesAsserts
