@@ -21,7 +21,7 @@ tests:
   - ../values-production.yaml
 - it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
   values: *localValues
-  documentSelector:
+  documentSelector: &daemonSetSelector
     path: kind
     value: DaemonSet
   asserts:
@@ -47,9 +47,7 @@ tests:
 
 - it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
   values: *devValues
-  documentSelector:
-    path: kind
-    value: DaemonSet
+  documentSelector: *daemonSetSelector
   asserts: &externalSecretsResourcesAsserts
   - matchRegex:
       path: *cpuLimitsPath
@@ -70,7 +68,5 @@ tests:
 
 - it: metallb speaker, frr, reloader, frr-metrics container resources for prod-cloud01 cluster
   values: *prodValues
-  documentSelector:
-    path: kind
-    value: DaemonSet
+  documentSelector: *daemonSetSelector
   asserts: *externalSecretsResourcesAsserts
