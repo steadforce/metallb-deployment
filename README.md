@@ -106,14 +106,14 @@ Or with output in JUnit format:
  docker run --pull=always -ti --rm -v "$(pwd):/apps" -u $(id -u) helmunittest/helm-unittest -o test-output.xml .
 ```
 
-## Render resource local
+## Render resource locally
 
 ```
  helm template -n metallb --release-name metallb --include-crds --skip-tests \
   -a metallb.io/v1beta1 \
   -f values-local.yaml --output-dir _local .
 ```
-## Run act pipeline local
+## Run act pipeline locally
 
 To run the pipeline in a local environment, start up the workbench, cd into the folder containing this
 `README.md` and execute the following command:
