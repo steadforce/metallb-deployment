@@ -1,0 +1,72 @@
+suite: test if the resource settings for metallb speaker container in cluster are correct
+release:
+  name: metallb
+templates:
+- charts/metallb/templates/speaker.yaml
+tests:
+- it: snapshot test for detecting side effects on all local metallb speaker container during local development
+  asserts:
+  - matchSnapshot: {}
+  values: &localValues
+  - ../values-local.yaml
+- it: snapshot test for detecting side effects on all dev metallb speaker container during local development
+  asserts:
+  - matchSnapshot: {}
+  values: &devValues
+  - ../values-development.yaml
+- it: snapshot test for detecting side effects on all prod metallb speaker container during local development
+  asserts:
+  - matchSnapshot: {}
+  values: &prodValues
+  - ../values-production.yaml
+- it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
+  values: *localValues
+  documentSelector: &daemonSetSelector
+    path: kind
+    value: DaemonSet
+  asserts:
+  - matchRegex:
+      path: kind
+      pattern: DaemonSet
+  - matchRegex:
+      path: &cpuLimitsPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.limits.cpu
+      # on local cluster we expect 0 or 0m cpu limits
+      pattern: &localCpuPattern "^0(m)?$"
+  - matchRegex:
+      path: &memoryLimitsPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.limits.memory
+      # on local cluster we expect non 0 memory limits
+      pattern: &nonZeroMemoryPattern "^[1-9][0-9]*(Ki|Mi|Gi)?$"
+  - matchRegex:
+      path: &requestsCpuPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.requests.cpu
+      # on local cluster we expect 0 or 0m cpu requests
+      pattern: *localCpuPattern
+  - matchRegex:
+      path: &requestsMemoryPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.requests.memory
+      # on local cluster we expect 0 or 0Mi 0Gi memory requests
+      pattern: "^0(Ki|Mi|Gi)?$"
+
+- it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
+  values: *devValues
+  documentSelector: *daemonSetSelector
+  asserts: &externalSecretsResourcesAsserts
+  - matchRegex:
+      path: *cpuLimitsPath
+      # on non local cluster we expect >= 1m cpu limits
+      pattern: &cpuPattern "^[1-9][0-9]*(m)?$"
+  - matchRegex:
+      path: *memoryLimitsPath
+      # on non local cluster we expect non 0 memory limits
+      pattern: *nonZeroMemoryPattern
+  - matchRegex:
+      path: *requestsCpuPath
+      # on non local cluster we expect  >= 1m cpu requests
+      pattern: *cpuPattern
+  - matchRegex:
+      path: *requestsMemoryPath
+      # on non local cluster we expect non 0 memory requests
+      pattern: *nonZeroMemoryPattern
+
+- it: metallb speaker, frr, reloader, frr-metrics container resources for prod-cloud01 cluster
+  values: *prodValues
+  documentSelector: *daemonSetSelector
+  asserts: *externalSecretsResourcesAsserts

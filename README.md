@@ -92,10 +92,35 @@ for loadbalancers in the kubernetes cluster.
 
 * Istio-Gateway `10.193.5.242`
 
-## Render resource local
+# Testing
+
+## run helm unittests
+
+```shell
+ docker run --pull=always -ti --rm -v "$(pwd):/apps" -u $(id -u) helmunittest/helm-unittest .
+```
+
+Or with output in JUnit format:
+
+```shell
+ docker run --pull=always -ti --rm -v "$(pwd):/apps" -u $(id -u) helmunittest/helm-unittest -o test-output.xml .
+```
+
+## Render resource locally
 
 ```
  helm template -n metallb --release-name metallb --include-crds --skip-tests \
   -a metallb.io/v1beta1 \
   -f values-local.yaml --output-dir _local .
 ```
+## Run act pipeline locally
+
+To run the pipeline in a local environment, start up the workbench, cd into the folder containing this
+`README.md` and execute the following command:
+
+```shell
+  act
+```
+
+On first execution you're asked which flavour of the act image should be used. Using the default `medium`
+is a good starting point.
