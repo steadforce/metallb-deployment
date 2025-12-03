@@ -3,6 +3,8 @@ release:
   name: metallb
 templates:
 - charts/metallb/templates/speaker.yaml
+values:
+- ../values-subchart-overrides.yaml
 tests:
 - it: snapshot test for detecting side effects on all local metallb speaker container during local development
   asserts:
@@ -70,3 +72,39 @@ tests:
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *externalSecretsResourcesAsserts
+
+- it: metallb speaker, frr liveness probe timeout seconds for local cluster
+  values: *localValues
+  documentSelector: *daemonSetSelector
+  asserts: &livenessProbeTimeoutAsserts
+  - equal:
+      path: spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr")].livenessProbe.timeoutSeconds
+      value: 3
+
+- it: metallb speaker, frr liveness probe timeout seconds for development cluster
+  values: *devValues
+  documentSelector: *daemonSetSelector
+  asserts: *livenessProbeTimeoutAsserts
+
+- it: metallb speaker, frr liveness probe timeout seconds for production cluster
+  values: *prodValues
+  documentSelector: *daemonSetSelector
+  asserts: *livenessProbeTimeoutAsserts
+
+- it: metallb speaker, frr readiness probe timeout seconds for local cluster
+  values: *localValues
+  documentSelector: *daemonSetSelector
+  asserts: &readinessProbeTimeoutAsserts
+  - equal:
+      path: spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr")].readinessProbe.timeoutSeconds
+      value: 3
+
+- it: metallb speaker, frr readiness probe timeout seconds for development cluster
+  values: *devValues
+  documentSelector: *daemonSetSelector
+  asserts: *readinessProbeTimeoutAsserts
+
+- it: metallb speaker, frr readiness probe timeout seconds for production cluster
+  values: *prodValues
+  documentSelector: *daemonSetSelector
+  asserts: *readinessProbeTimeoutAsserts
