@@ -31,19 +31,19 @@ tests:
       path: kind
       pattern: DaemonSet
   - matchRegex:
-      path: &cpuLimitsPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.limits.cpu
+      path: &cpuLimitsPath spec.template.spec.containers[?(@.name=="speaker")].resources.limits.cpu
       # on local cluster we expect 0 or 0m cpu limits
       pattern: &localCpuPattern "^0(m)?$"
   - matchRegex:
-      path: &memoryLimitsPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.limits.memory
+      path: &memoryLimitsPath spec.template.spec.containers[?(@.name=="speaker")].resources.limits.memory
       # on local cluster we expect non 0 memory limits
       pattern: &nonZeroMemoryPattern "^[1-9][0-9]*(Ki|Mi|Gi)?$"
   - matchRegex:
-      path: &requestsCpuPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.requests.cpu
+      path: &requestsCpuPath spec.template.spec.containers[?(@.name=="speaker")].resources.requests.cpu
       # on local cluster we expect 0 or 0m cpu requests
       pattern: *localCpuPattern
   - matchRegex:
-      path: &requestsMemoryPath spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr" || @.name=="reloader" || @.name=="frr-metrics")].resources.requests.memory
+      path: &requestsMemoryPath spec.template.spec.containers[?(@.name=="speaker")].resources.requests.memory
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
@@ -78,7 +78,7 @@ tests:
   documentSelector: *daemonSetSelector
   asserts: &livenessProbeTimeoutAsserts
   - equal:
-      path: spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr")].livenessProbe.timeoutSeconds
+      path: spec.template.spec.containers[?(@.name=="speaker")].livenessProbe.timeoutSeconds
       value: 3
 
 - it: metallb speaker, frr liveness probe timeout seconds for development cluster
@@ -96,7 +96,7 @@ tests:
   documentSelector: *daemonSetSelector
   asserts: &readinessProbeTimeoutAsserts
   - equal:
-      path: spec.template.spec.containers[?(@.name=="speaker" || @.name =="frr")].readinessProbe.timeoutSeconds
+      path: spec.template.spec.containers[?(@.name=="speaker")].readinessProbe.timeoutSeconds
       value: 3
 
 - it: metallb speaker, frr readiness probe timeout seconds for development cluster
