@@ -20,7 +20,7 @@ metallb:
         cpu: 20m
         memory: 80Mi
     frr:
-      # ffr is only needed for BGP mode, disables to save resources we are using L2 mode
+      # frr is only needed for BGP mode, disabled to save resources as we are using L2 mode
       enabled: false
       resources:
         limits:
