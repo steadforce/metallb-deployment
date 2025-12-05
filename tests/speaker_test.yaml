@@ -108,3 +108,20 @@ tests:
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *readinessProbeTimeoutAsserts
+
+- it: metallb speaker, frr not needed due to L2 loadbalancing for local cluster
+  values: *localValues
+  documentSelector: *daemonSetSelector
+  asserts: &frrDisabledAsserts
+  - notExists:
+      path: spec.template.spec.containers[?(@.name=="frr")]
+
+- it: metallb speaker, frr not needed due to L2 loadbalancing for development cluster
+  values: *devValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrDisabledAsserts
+
+- it: metallb speaker, frr not needed due to L2 loadbalancing for production cluster
+  values: *prodValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrDisabledAsserts
