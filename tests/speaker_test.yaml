@@ -73,7 +73,7 @@ tests:
   documentSelector: *daemonSetSelector
   asserts: *externalSecretsResourcesAsserts
 
-- it: metallb speaker, frr liveness probe timeout seconds for local cluster
+- it: metallb speaker liveness probe timeout seconds for local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
   asserts: &livenessProbeTimeoutAsserts
@@ -81,17 +81,17 @@ tests:
       path: spec.template.spec.containers[?(@.name=="speaker")].livenessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker, frr liveness probe timeout seconds for development cluster
+- it: metallb speaker liveness probe timeout seconds for development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: *livenessProbeTimeoutAsserts
 
-- it: metallb speaker, frr liveness probe timeout seconds for production cluster
+- it: metallb speaker liveness probe timeout seconds for production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *livenessProbeTimeoutAsserts
 
-- it: metallb speaker, frr readiness probe timeout seconds for local cluster
+- it: metallb speaker readiness probe timeout seconds for local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
   asserts: &readinessProbeTimeoutAsserts
@@ -99,12 +99,12 @@ tests:
       path: spec.template.spec.containers[?(@.name=="speaker")].readinessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker, frr readiness probe timeout seconds for development cluster
+- it: metallb speaker readiness probe timeout seconds for development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: *readinessProbeTimeoutAsserts
 
-- it: metallb speaker, frr readiness probe timeout seconds for production cluster
+- it: metallb speaker readiness probe timeout seconds for production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *readinessProbeTimeoutAsserts
