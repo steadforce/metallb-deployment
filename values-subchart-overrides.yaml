@@ -1,0 +1,47 @@
+metallb:
+  controller:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 20m
+        memory: 96Mi
+  speaker:
+    livenessProbe:
+      timeoutSeconds: 3
+    readinessProbe:
+      timeoutSeconds: 3
+    resources:
+      limits:
+        cpu: 200m
+        memory: 96Mi
+      requests:
+        cpu: 20m
+        memory: 80Mi
+    frr:
+      # frr is only needed for BGP mode, disabled to save resources as we are using L2 mode
+      enabled: false
+      resources:
+        limits:
+          cpu: 200m
+          memory: 64Mi
+        requests:
+          cpu: 10m
+          memory: 32Mi
+    reloader:
+      resources:
+        limits:
+          cpu: 100m
+          memory: 32Mi
+        requests:
+          cpu: 5m
+          memory: 8Mi
+    frrMetrics:
+      resources:
+        limits:
+          cpu: 200m
+          memory: 64Mi
+        requests:
+          cpu: 20m
+          memory: 16Mi

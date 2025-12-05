@@ -111,6 +111,7 @@ Or with output in JUnit format:
 ```
  helm template -n metallb --release-name metallb --include-crds --skip-tests \
   -a metallb.io/v1beta1 \
+  -f values-subchart-overrides.yaml \
   -f values-local.yaml --output-dir _local .
 ```
 ## Run act pipeline locally

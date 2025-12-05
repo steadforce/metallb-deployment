@@ -3,6 +3,8 @@ release:
   name: metallb
 templates:
 - charts/metallb/templates/controller.yaml
+values:
+- ../values-subchart-overrides.yaml
 tests:
 - it: snapshot test for detecting side effects on all local metallb controllers during local development
   asserts:
