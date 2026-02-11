@@ -1,0 +1,11 @@
+---
+# Source: metallb/templates/address-pool.yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  addresses:
+  - 10.193.5.242-10.193.5.254
