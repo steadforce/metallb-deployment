@@ -106,14 +106,23 @@ Or with output in JUnit format:
  docker run --pull=always -ti --rm -v "$(pwd):/apps" -u $(id -u) helmunittest/helm-unittest -o test-output.xml .
 ```
 
-## Render resource locally
+## Render all manifests locally
 
+```shell
+ helm dependency update && \
+ for cluster in $(yq '.environments | keys[]' helm-config.yaml); do
+    helm template \
+      -a "$(cluster=$cluster yq '.environments.[env(cluster)].apis | @csv' helm-config.yaml)" \
+      -f "$(cluster=$cluster yq '.environments.[env(cluster)].valueFiles | @csv' helm-config.yaml)" \
+      -n $(yq 'explode(.) | .namespace // ""' helm-config.yaml) \
+      --output-dir _local/$cluster \
+      --include-crds \
+      --release-name $(yq 'explode(.) | .releaseName // ""' helm-config.yaml) \
+      --skip-tests \
+      .
+ done
 ```
- helm template -n metallb --release-name metallb --include-crds --skip-tests \
-  -a metallb.io/v1beta1 \
-  -f values-subchart-overrides.yaml \
-  -f values-local.yaml --output-dir _local .
-```
+
 ## Run act pipeline locally
 
 To run the pipeline in a local environment, start up the workbench, cd into the folder containing this
