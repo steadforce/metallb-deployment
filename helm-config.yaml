@@ -6,8 +6,6 @@ environments:
   local:
     apis: &apis
     - metallb.io/v1beta1
-    - frrk8s.metallb.io/v1beta1/
-    - monitoring.coreos.com/v1
     valueFiles:
     - values-subchart-overrides.yaml
     - values-local.yaml
