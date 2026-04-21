@@ -1,7 +1,7 @@
 # Configuration file used by the pipeline hydration step
 # to render the manifests for the different environments
-releaseName: &name metallb
-namespace: *name
+releaseName: metallb
+namespace: metallb-system
 environments:
   local:
     apis: &apis
