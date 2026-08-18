@@ -3,7 +3,7 @@ metallb:
     resources:
       limits:
         cpu: 200m
-        memory: 160Mi
+        memory: 192Mi
       requests:
         cpu: 20m
         memory: 128Mi
