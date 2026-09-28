@@ -204,8 +204,7 @@ test results and sending notifications.
 ## CI/CD
 
 All workflows in [`.github/workflows/`](.github/workflows) call reusable workflows from
-[`steadforce/steadops-workflows`][steadops-workflows]. The unit test workflow is pinned to `v4.2.0`, the
-Trufflehog workflow to `v3.0.0`:
+[`steadforce/steadops-workflows`][steadops-workflows]. Both workflows are pinned to `v4.2.0`:
 
 | Workflow | Trigger | Purpose |
 | --- | --- | --- |
