@@ -1,0 +1,70 @@
+suite: metallb address pool and l2 advertisement per cluster
+capabilities:
+  apiVersions:
+  - metallb.io/v1beta1
+release:
+  name: metallb
+templates:
+- &addressPoolTemplate templates/address-pool.yaml
+- &l2AdvertisementTemplate templates/l2-advertisement.yaml
+values:
+- ../values-subchart-overrides.yaml
+tests:
+- it: matches the production cluster snapshot
+  values: &prodValues
+  - ../values-production.yaml
+  asserts:
+  - matchSnapshot: {}
+
+- it: uses the local address range on the local cluster
+  template: *addressPoolTemplate
+  values:
+  - ../values-local.yaml
+  asserts:
+  - equal:
+      path: &addressesPath spec.addresses
+      value:
+      - 10.172.242.242-10.172.242.254
+
+- it: uses the development address range on the development cluster
+  template: *addressPoolTemplate
+  values:
+  - ../values-development.yaml
+  asserts:
+  - equal:
+      path: *addressesPath
+      value:
+      - 10.195.6.242-10.195.6.254
+
+- it: uses the production address range on the production cluster
+  template: *addressPoolTemplate
+  values: *prodValues
+  asserts:
+  - equal:
+      path: *addressesPath
+      value:
+      - 10.193.5.242-10.193.5.254
+
+- it: renders the default ip address pool
+  template: *addressPoolTemplate
+  values: *prodValues
+  asserts:
+  - isKind:
+      of: IPAddressPool
+  - equal:
+      path: metadata.name
+      value: &poolName default
+
+- it: advertises the default ip address pool
+  template: *l2AdvertisementTemplate
+  values: *prodValues
+  asserts:
+  - isKind:
+      of: L2Advertisement
+  - equal:
+      path: metadata.name
+      value: *poolName
+  - equal:
+      path: spec.ipAddressPools
+      value:
+      - *poolName
