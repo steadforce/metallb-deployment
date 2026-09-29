@@ -161,9 +161,13 @@ Containerized:
 
 ## Testing
 
-The suites in [`tests/`](tests) test the subchart's controller `Deployment` and speaker `DaemonSet` for the local,
-development, and production clusters. They assert the container resources, the speaker probe timeouts, and that
-FRR is disabled, and take a snapshot of each rendering.
+The suites in [`tests/`](tests) cover the local, development, and production clusters and take a snapshot of each
+rendering:
+
+- The controller `Deployment` and speaker `DaemonSet` suites assert the container resources, the speaker probe
+  timeouts, and that FRR is disabled.
+- The address pool suite asserts the IP range of the `IPAddressPool` per cluster and that the `L2Advertisement`
+  announces the `default` pool.
 
 ```shell
  docker run \
