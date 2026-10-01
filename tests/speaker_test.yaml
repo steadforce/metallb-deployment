@@ -6,22 +6,22 @@ templates:
 values:
 - ../values-subchart-overrides.yaml
 tests:
-- it: snapshot test for detecting side effects on all local metallb speaker container during local development
+- it: matches the local cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &localValues
   - ../values-local.yaml
-- it: snapshot test for detecting side effects on all dev metallb speaker container during local development
+- it: matches the development cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &devValues
   - ../values-development.yaml
-- it: snapshot test for detecting side effects on all prod metallb speaker container during local development
+- it: matches the production cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &prodValues
   - ../values-production.yaml
-- it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
+- it: sets zero cpu and memory requests for the speaker on the local cluster
   values: *localValues
   documentSelector: &daemonSetSelector
     path: kind
@@ -47,7 +47,7 @@ tests:
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
-- it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
+- it: sets non-zero cpu and memory resources for the speaker on the development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: &externalSecretsResourcesAsserts
@@ -68,12 +68,12 @@ tests:
       # on non local cluster we expect non 0 memory requests
       pattern: *nonZeroMemoryPattern
 
-- it: metallb speaker, frr, reloader, frr-metrics container resources for prod-cloud01 cluster
+- it: sets non-zero cpu and memory resources for the speaker on the production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *externalSecretsResourcesAsserts
 
-- it: metallb speaker liveness probe timeout seconds for local cluster
+- it: sets the speaker liveness probe timeout to 3 seconds on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
   asserts: &livenessProbeTimeoutAsserts
@@ -81,17 +81,17 @@ tests:
       path: spec.template.spec.containers[?(@.name=="speaker")].livenessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker liveness probe timeout seconds for development cluster
+- it: sets the speaker liveness probe timeout to 3 seconds on the development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: *livenessProbeTimeoutAsserts
 
-- it: metallb speaker liveness probe timeout seconds for production cluster
+- it: sets the speaker liveness probe timeout to 3 seconds on the production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *livenessProbeTimeoutAsserts
 
-- it: metallb speaker readiness probe timeout seconds for local cluster
+- it: sets the speaker readiness probe timeout to 3 seconds on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
   asserts: &readinessProbeTimeoutAsserts
@@ -99,29 +99,29 @@ tests:
       path: spec.template.spec.containers[?(@.name=="speaker")].readinessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker readiness probe timeout seconds for development cluster
+- it: sets the speaker readiness probe timeout to 3 seconds on the development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: *readinessProbeTimeoutAsserts
 
-- it: metallb speaker readiness probe timeout seconds for production cluster
+- it: sets the speaker readiness probe timeout to 3 seconds on the production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *readinessProbeTimeoutAsserts
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for local cluster
+- it: omits the frr container for l2 load balancing on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
   asserts: &frrDisabledAsserts
   - notExists:
       path: spec.template.spec.containers[?(@.name=="frr")]
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for development cluster
+- it: omits the frr container for l2 load balancing on the development cluster
   values: *devValues
   documentSelector: *daemonSetSelector
   asserts: *frrDisabledAsserts
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for production cluster
+- it: omits the frr container for l2 load balancing on the production cluster
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *frrDisabledAsserts

@@ -6,22 +6,22 @@ templates:
 values:
 - ../values-subchart-overrides.yaml
 tests:
-- it: snapshot test for detecting side effects on all local metallb controllers during local development
+- it: matches the local cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &localValues
   - ../values-local.yaml
-- it: snapshot test for detecting side effects on all dev metallb controllers during local development
+- it: matches the development cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &devValues
   - ../values-development.yaml
-- it: snapshot test for detecting side effects on all prod metallb controllers during local development
+- it: matches the production cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &prodValues
   - ../values-production.yaml
-- it: metallb controller container resources for local cluster
+- it: sets zero cpu and memory requests for the controller on the local cluster
   values: *localValues
   asserts:
   - matchRegex:
@@ -41,7 +41,7 @@ tests:
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
-- it: metallb controller container resources for dev-cloud01 cluster
+- it: sets non-zero cpu and memory resources for the controller on the development cluster
   values: *devValues
   asserts: &externalSecretsResourcesAsserts
   - matchRegex:
@@ -61,6 +61,6 @@ tests:
       # on non local cluster we expect non 0 memory requests
       pattern: *nonZeroMemoryPattern
 
-- it: metallb controller container resources for prod-cloud01 cluster
+- it: sets non-zero cpu and memory resources for the controller on the production cluster
   values: *prodValues
   asserts: *externalSecretsResourcesAsserts
