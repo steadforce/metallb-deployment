@@ -125,3 +125,42 @@ tests:
   values: *prodValues
   documentSelector: *daemonSetSelector
   asserts: *frrDisabledAsserts
+
+- it: omits the frr sidecars and init containers on the local cluster
+  values: *localValues
+  documentSelector: *daemonSetSelector
+  asserts: &frrSidecarsOmittedAsserts
+  - notExists:
+      path: spec.template.spec.containers[?(@.name=="reloader")]
+  - notExists:
+      path: spec.template.spec.containers[?(@.name=="frr-metrics")]
+  - notExists:
+      path: spec.template.spec.initContainers
+  - notExists:
+      path: spec.template.spec.volumes[?(@.name=="frr-startup")]
+
+- it: omits the frr sidecars and init containers on the development cluster
+  values: *devValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrSidecarsOmittedAsserts
+
+- it: omits the frr sidecars and init containers on the production cluster
+  values: *prodValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrSidecarsOmittedAsserts
+
+- it: renders only the speaker daemonset without the frr startup configmap on the local cluster
+  values: *localValues
+  asserts: &frrStartupConfigMapOmittedAsserts
+  - hasDocuments:
+      count: 1
+  - isKind:
+      of: DaemonSet
+
+- it: renders only the speaker daemonset without the frr startup configmap on the development cluster
+  values: *devValues
+  asserts: *frrStartupConfigMapOmittedAsserts
+
+- it: renders only the speaker daemonset without the frr startup configmap on the production cluster
+  values: *prodValues
+  asserts: *frrStartupConfigMapOmittedAsserts
