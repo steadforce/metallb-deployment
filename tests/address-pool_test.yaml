@@ -11,7 +11,7 @@ values:
 - ../values-subchart-overrides.yaml
 tests:
 - it: matches the production cluster snapshot
-  values: &prodValues
+  values: &productionValues
   - ../values-production.yaml
   asserts:
   - matchSnapshot: {}
@@ -38,7 +38,7 @@ tests:
 
 - it: uses the production address range on the production cluster
   template: *addressPoolTemplate
-  values: *prodValues
+  values: *productionValues
   asserts:
   - equal:
       path: *addressesPath
@@ -47,7 +47,7 @@ tests:
 
 - it: renders the default ip address pool
   template: *addressPoolTemplate
-  values: *prodValues
+  values: *productionValues
   asserts:
   - isKind:
       of: IPAddressPool
@@ -57,7 +57,7 @@ tests:
 
 - it: advertises the default ip address pool
   template: *l2AdvertisementTemplate
-  values: *prodValues
+  values: *productionValues
   asserts:
   - isKind:
       of: L2Advertisement

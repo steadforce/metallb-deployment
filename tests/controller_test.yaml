@@ -14,12 +14,12 @@ tests:
 - it: matches the development cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &devValues
+  values: &developmentValues
   - ../values-development.yaml
 - it: matches the production cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &prodValues
+  values: &productionValues
   - ../values-production.yaml
 - it: sets zero cpu and memory requests for the controller on the local cluster
   values: *localValues
@@ -42,12 +42,12 @@ tests:
       pattern: "^0(Ki|Mi|Gi)?$"
 
 - it: sets non-zero cpu and memory resources for the controller on the development cluster
-  values: *devValues
-  asserts: &externalSecretsResourcesAsserts
+  values: *developmentValues
+  asserts: &controllerResourcesAssert
   - matchRegex:
       path: *cpuLimitsPath
       # on non local cluster we expect >= 1m cpu limits
-      pattern: &cpuPattern "^[1-9][0-9]*(m)?$"
+      pattern: &nonZeroCpuPattern "^[1-9][0-9]*(m)?$"
   - matchRegex:
       path: *memoryLimitsPath
       # on non local cluster we expect non 0 memory limits
@@ -55,12 +55,12 @@ tests:
   - matchRegex:
       path: *requestsCpuPath
       # on non local cluster we expect  >= 1m cpu requests
-      pattern: *cpuPattern
+      pattern: *nonZeroCpuPattern
   - matchRegex:
       path: *requestsMemoryPath
       # on non local cluster we expect non 0 memory requests
       pattern: *nonZeroMemoryPattern
 
 - it: sets non-zero cpu and memory resources for the controller on the production cluster
-  values: *prodValues
-  asserts: *externalSecretsResourcesAsserts
+  values: *productionValues
+  asserts: *controllerResourcesAssert
