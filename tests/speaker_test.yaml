@@ -1,4 +1,4 @@
-suite: test if the resource settings for metallb speaker container in cluster are correct
+suite: metallb speaker daemonset resources, probes and frr per cluster
 release:
   name: metallb
 templates:
@@ -6,22 +6,22 @@ templates:
 values:
 - ../values-subchart-overrides.yaml
 tests:
-- it: snapshot test for detecting side effects on all local metallb speaker container during local development
+- it: matches the local cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &localValues
   - ../values-local.yaml
-- it: snapshot test for detecting side effects on all dev metallb speaker container during local development
+- it: matches the development cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &devValues
+  values: &developmentValues
   - ../values-development.yaml
-- it: snapshot test for detecting side effects on all prod metallb speaker container during local development
+- it: matches the production cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &prodValues
+  values: &productionValues
   - ../values-production.yaml
-- it: metallb speaker, frr, reloader, frr-metrics container resources for local cluster
+- it: sets zero cpu and memory requests for the speaker on the local cluster
   values: *localValues
   documentSelector: &daemonSetSelector
     path: kind
@@ -47,14 +47,14 @@ tests:
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
-- it: metallb speaker, frr, reloader, frr-metrics container resources for dev-cloud01 cluster
-  values: *devValues
+- it: sets non-zero cpu and memory resources for the speaker on the development cluster
+  values: *developmentValues
   documentSelector: *daemonSetSelector
-  asserts: &externalSecretsResourcesAsserts
+  asserts: &speakerResourcesAssert
   - matchRegex:
       path: *cpuLimitsPath
       # on non local cluster we expect >= 1m cpu limits
-      pattern: &cpuPattern "^[1-9][0-9]*(m)?$"
+      pattern: &nonZeroCpuPattern "^[1-9][0-9]*(m)?$"
   - matchRegex:
       path: *memoryLimitsPath
       # on non local cluster we expect non 0 memory limits
@@ -62,66 +62,105 @@ tests:
   - matchRegex:
       path: *requestsCpuPath
       # on non local cluster we expect  >= 1m cpu requests
-      pattern: *cpuPattern
+      pattern: *nonZeroCpuPattern
   - matchRegex:
       path: *requestsMemoryPath
       # on non local cluster we expect non 0 memory requests
       pattern: *nonZeroMemoryPattern
 
-- it: metallb speaker, frr, reloader, frr-metrics container resources for prod-cloud01 cluster
-  values: *prodValues
+- it: sets non-zero cpu and memory resources for the speaker on the production cluster
+  values: *productionValues
   documentSelector: *daemonSetSelector
-  asserts: *externalSecretsResourcesAsserts
+  asserts: *speakerResourcesAssert
 
-- it: metallb speaker liveness probe timeout seconds for local cluster
+- it: sets the speaker liveness probe timeout to 3 seconds on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
-  asserts: &livenessProbeTimeoutAsserts
+  asserts: &livenessProbeTimeoutAssert
   - equal:
       path: spec.template.spec.containers[?(@.name=="speaker")].livenessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker liveness probe timeout seconds for development cluster
-  values: *devValues
+- it: sets the speaker liveness probe timeout to 3 seconds on the development cluster
+  values: *developmentValues
   documentSelector: *daemonSetSelector
-  asserts: *livenessProbeTimeoutAsserts
+  asserts: *livenessProbeTimeoutAssert
 
-- it: metallb speaker liveness probe timeout seconds for production cluster
-  values: *prodValues
+- it: sets the speaker liveness probe timeout to 3 seconds on the production cluster
+  values: *productionValues
   documentSelector: *daemonSetSelector
-  asserts: *livenessProbeTimeoutAsserts
+  asserts: *livenessProbeTimeoutAssert
 
-- it: metallb speaker readiness probe timeout seconds for local cluster
+- it: sets the speaker readiness probe timeout to 3 seconds on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
-  asserts: &readinessProbeTimeoutAsserts
+  asserts: &readinessProbeTimeoutAssert
   - equal:
       path: spec.template.spec.containers[?(@.name=="speaker")].readinessProbe.timeoutSeconds
       value: 3
 
-- it: metallb speaker readiness probe timeout seconds for development cluster
-  values: *devValues
+- it: sets the speaker readiness probe timeout to 3 seconds on the development cluster
+  values: *developmentValues
   documentSelector: *daemonSetSelector
-  asserts: *readinessProbeTimeoutAsserts
+  asserts: *readinessProbeTimeoutAssert
 
-- it: metallb speaker readiness probe timeout seconds for production cluster
-  values: *prodValues
+- it: sets the speaker readiness probe timeout to 3 seconds on the production cluster
+  values: *productionValues
   documentSelector: *daemonSetSelector
-  asserts: *readinessProbeTimeoutAsserts
+  asserts: *readinessProbeTimeoutAssert
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for local cluster
+- it: omits the frr container for l2 load balancing on the local cluster
   values: *localValues
   documentSelector: *daemonSetSelector
-  asserts: &frrDisabledAsserts
+  asserts: &frrDisabledAssert
   - notExists:
       path: spec.template.spec.containers[?(@.name=="frr")]
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for development cluster
-  values: *devValues
+- it: omits the frr container for l2 load balancing on the development cluster
+  values: *developmentValues
   documentSelector: *daemonSetSelector
-  asserts: *frrDisabledAsserts
+  asserts: *frrDisabledAssert
 
-- it: metallb speaker, frr not needed due to L2 loadbalancing for production cluster
-  values: *prodValues
+- it: omits the frr container for l2 load balancing on the production cluster
+  values: *productionValues
   documentSelector: *daemonSetSelector
-  asserts: *frrDisabledAsserts
+  asserts: *frrDisabledAssert
+
+- it: omits the frr sidecars and init containers on the local cluster
+  values: *localValues
+  documentSelector: *daemonSetSelector
+  asserts: &frrSidecarsOmittedAssert
+  - notExists:
+      path: spec.template.spec.containers[?(@.name=="reloader")]
+  - notExists:
+      path: spec.template.spec.containers[?(@.name=="frr-metrics")]
+  - notExists:
+      path: spec.template.spec.initContainers
+  - notExists:
+      path: spec.template.spec.volumes[?(@.name=="frr-startup")]
+
+- it: omits the frr sidecars and init containers on the development cluster
+  values: *developmentValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrSidecarsOmittedAssert
+
+- it: omits the frr sidecars and init containers on the production cluster
+  values: *productionValues
+  documentSelector: *daemonSetSelector
+  asserts: *frrSidecarsOmittedAssert
+
+- it: renders only the speaker daemonset without the frr startup configmap on the local cluster
+  values: *localValues
+  asserts: &frrStartupConfigMapOmittedAssert
+  - hasDocuments:
+      count: 1
+  - isKind:
+      of: DaemonSet
+
+- it: renders only the speaker daemonset without the frr startup configmap on the development cluster
+  values: *developmentValues
+  asserts: *frrStartupConfigMapOmittedAssert
+
+- it: renders only the speaker daemonset without the frr startup configmap on the production cluster
+  values: *productionValues
+  asserts: *frrStartupConfigMapOmittedAssert

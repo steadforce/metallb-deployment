@@ -51,7 +51,7 @@ Commands in this document run from the repository root, in one of two ways:
 | --- | --- | --- |
 | [`values.yaml`](values.yaml) | All environments | Address pool `default` with the local IP range. |
 | [`values-subchart-overrides.yaml`](values-subchart-overrides.yaml) | All environments | Subchart overrides. |
-| [`values-local.yaml`](values-local.yaml) | Local clusters | Near-zero resource requests and limits. |
+| [`values-local.yaml`](values-local.yaml) | Local clusters | Zero CPU and memory requests, smaller limits. |
 | [`values-development.yaml`](values-development.yaml) | Development clusters | Development IP range. |
 | [`values-production.yaml`](values-production.yaml) | Production clusters | Production IP range. |
 
@@ -161,9 +161,12 @@ Containerized:
 
 ## Testing
 
-The suites in [`tests/`](tests) test the subchart's controller `Deployment` and speaker `DaemonSet` for the local,
-development, and production clusters. They assert the container resources, the speaker probe timeouts, and that
-FRR is disabled, and take a snapshot of each rendering.
+The suites in [`tests/`](tests) cover the local, development, and production clusters:
+
+- The controller `Deployment` and speaker `DaemonSet` suites take a snapshot per cluster and assert the container
+  resources, the speaker probe timeouts, and that the FRR containers and the FRR startup `ConfigMap` are omitted.
+- The address pool suite takes a production snapshot and asserts the IP range of the `IPAddressPool` per cluster
+  and that the `L2Advertisement` announces the `default` pool.
 
 ```shell
  docker run \
@@ -176,7 +179,17 @@ FRR is disabled, and take a snapshot of each rendering.
 ```
 
 helm-unittest writes XUnit by default. To get a JUnit report in `test-output.xml`, as the pipeline does, add
-`-t JUnit -o test-output.xml` before the chart path. Inside the workbench, run `helm unittest .` directly.
+`-t JUnit -o test-output.xml` before the chart path.
+
+Inside the workbench, run `helm unittest .` directly. The workbench image does not ship the helm-unittest plugin;
+this only works because the workbench mounts `$HOME`, so a plugin installed in the host's Helm home is available.
+Install it once with:
+
+```shell
+ helm plugin install --verify=false https://github.com/helm-unittest/helm-unittest.git
+```
+
+Helm 4 needs `--verify=false` for this unsigned plugin, as the pipeline does.
 
 To update the test snapshots, add `-u`:
 
