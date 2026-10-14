@@ -1,4 +1,4 @@
-suite: test if the resource settings for metallb controller in cluster are correct
+suite: metallb controller deployment resources per cluster
 release:
   name: metallb
 templates:
@@ -6,22 +6,22 @@ templates:
 values:
 - ../values-subchart-overrides.yaml
 tests:
-- it: snapshot test for detecting side effects on all local metallb controllers during local development
+- it: matches the local cluster snapshot
   asserts:
   - matchSnapshot: {}
   values: &localValues
   - ../values-local.yaml
-- it: snapshot test for detecting side effects on all dev metallb controllers during local development
+- it: matches the development cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &devValues
+  values: &developmentValues
   - ../values-development.yaml
-- it: snapshot test for detecting side effects on all prod metallb controllers during local development
+- it: matches the production cluster snapshot
   asserts:
   - matchSnapshot: {}
-  values: &prodValues
+  values: &productionValues
   - ../values-production.yaml
-- it: metallb controller container resources for local cluster
+- it: sets zero cpu and memory requests for the controller on the local cluster
   values: *localValues
   asserts:
   - matchRegex:
@@ -41,13 +41,13 @@ tests:
       # on local cluster we expect 0 or 0Mi 0Gi memory requests
       pattern: "^0(Ki|Mi|Gi)?$"
 
-- it: metallb controller container resources for dev-cloud01 cluster
-  values: *devValues
-  asserts: &externalSecretsResourcesAsserts
+- it: sets non-zero cpu and memory resources for the controller on the development cluster
+  values: *developmentValues
+  asserts: &controllerResourcesAssert
   - matchRegex:
       path: *cpuLimitsPath
       # on non local cluster we expect >= 1m cpu limits
-      pattern: &cpuPattern "^[1-9][0-9]*(m)?$"
+      pattern: &nonZeroCpuPattern "^[1-9][0-9]*(m)?$"
   - matchRegex:
       path: *memoryLimitsPath
       # on non local cluster we expect non 0 memory limits
@@ -55,12 +55,12 @@ tests:
   - matchRegex:
       path: *requestsCpuPath
       # on non local cluster we expect  >= 1m cpu requests
-      pattern: *cpuPattern
+      pattern: *nonZeroCpuPattern
   - matchRegex:
       path: *requestsMemoryPath
       # on non local cluster we expect non 0 memory requests
       pattern: *nonZeroMemoryPattern
 
-- it: metallb controller container resources for prod-cloud01 cluster
-  values: *prodValues
-  asserts: *externalSecretsResourcesAsserts
+- it: sets non-zero cpu and memory resources for the controller on the production cluster
+  values: *productionValues
+  asserts: *controllerResourcesAssert
